@@ -1,26 +1,48 @@
+// import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
-    const navigator=useNavigate()
+  const navigator=useNavigate()
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
+  const onSubmit =async (data) => {
+    try {
+      const response = await fetch(
+        "https://testapi.epickstream.online/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      console.log("Here is the response= ", result);
+    } catch (error) {
+      console.log("error occur", error);
+    }
     console.log(data);
     navigator('/dashboard')
 
   };
 
   return (
-    <div className="bg-sky-100 flex justify-center items-center min-h-screen">
+    <div className="bg-[#b6c8fe] flex justify-center items-center min-h-screen">
       {/* Left: Image */}
       <div className="w-1/2 h-screen hidden lg:block">
         <img
-          src="https://img.freepik.com/fotos-premium/imagen-fondo_910766-187.jpg?w=826"
+          src="/login.jpg"
           alt="Placeholder"
           className="object-cover w-full h-full"
         />
@@ -28,8 +50,8 @@ const SignIn = () => {
 
       {/* Right: Login Form */}
       <div className="lg:p-28 md:p-48 sm:p-20 p-12 w-full lg:w-1/2">
-        <div className="  border border-gray-300 p-8 rounded-md">
-          <h1 className="text-2xl font-semibold mb-4">Login</h1>
+        <div className=" shadow-[#0B1D51] shadow-md p-8 rounded-md">
+          <h1 className="text-2xl text-[#0B1D51] font-semibold mb-4">Login</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* email Input */}
             <div className="mb-4">
@@ -40,7 +62,7 @@ const SignIn = () => {
                 type="email"
                 id="email"
                 {...register("email", { required: "email is required" })}
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+                className="w-full border  rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
                 autoComplete="off"
               />
               {errors.email && (
@@ -83,8 +105,8 @@ const SignIn = () => {
             </div>
 
             {/* Forgot Password Link */}
-            <div className="mb-6 text-blue-500">
-              <a href="#" className="hover:underline">
+            <div className="mb-6 text-[#0B1D51]">
+              <a href="#" className="hover:font-bold">
                 Forgot Password?
               </a>
             </div>
@@ -92,7 +114,7 @@ const SignIn = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="bg-red-500 hover:bg-gray-400 hover:text-black text-white font-semibold rounded-md py-2 px-4 w-full"
+              className="bg-[#0B1D51] hover:bg-gray-400 hover:text-black text-white font-semibold rounded-md py-2 px-4 w-full"
             >
               Login
             </button>
