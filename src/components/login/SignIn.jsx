@@ -1,4 +1,5 @@
 // import axios from "axios";
+import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -26,9 +27,12 @@ const SignIn = () => {
           }),
         }
       );
+      const token = response.data.token;
 
-      const result = await response.json();
-      console.log("Here is the response= ", result);
+      // Store token in cookie (expires in 7 days)
+      Cookies.set("token", token, { expires: 7 });
+      // const result = await response.json();
+      // console.log("Here is the response= ", result);
     } catch (error) {
       console.log("error occur", error);
     }

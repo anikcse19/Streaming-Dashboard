@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "../componentscomponents/ui/table";
 import { Button } from "../componentscomponents/ui/button";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +23,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../componentscomponents/ui/dialog";
-import { Input } from "../componentscomponents/ui/input";
-import { Label } from "../componentscomponents/ui/label";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const mockEvents = [
   {
@@ -43,39 +43,49 @@ const mockEvents = [
 
 const Event = () => {
   const [events, setEvents] = useState(mockEvents);
-  const [newEvent, setNewEvent] = useState({
+  const [open, setOpen] = useState(false); // control Dialog
+  const initialFormState = {
     platform: "",
-    isPopular: "",
+    isPopular: false,
     sport_name: "",
     event_name: "",
-    event_time: "",
+    event_time: new Date(),
     hlsLink: "",
     posters: "",
-  });
-
+  };
+  const [eventData, setEventData] = useState(initialFormState);
   const handleDelete = (id) => {
     setEvents(events.filter((event) => event._id !== id));
   };
 
-  const handleAddEvent = () => {
-    const newId = Math.random().toString(36).substring(2);
-    setEvents([...events, { _id: newId, ...newEvent }]);
-    setNewEvent({
-      platform: "",
-      isPopular: "",
-      sport_name: "",
-      event_name: "",
-      event_time: "",
-      hlsLink: "",
-      posters: "",
-    });
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEventData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Event Submitted:", eventData);
+
+
+    // Clear form and close modal
+    setEventData(initialFormState);
+    setOpen(false);
+  };
+
+  const handleClose = () => {
+    setEventData(initialFormState);
+    setOpen(false);
   };
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-[#0B1D51]">Events</h2>
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="outline">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Event
@@ -85,27 +95,92 @@ const Event = () => {
             <DialogHeader>
               <DialogTitle>Add New Event</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {Object.keys(newEvent).map((field) => (
-                <div
-                  className="grid grid-cols-4 items-center gap-4"
-                  key={field}
+            <form onSubmit={handleSubmit} className="space-y-4 p-4">
+              <input
+                type="text"
+                name="platform"
+                value={eventData.platform}
+                onChange={handleChange}
+                placeholder="Platform"
+                className="border p-2 w-full"
+              />
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="isPopular"
+                  checked={eventData.isPopular}
+                  onChange={handleChange}
+                />
+                <span>Is Popular</span>
+              </label>
+              <input
+                type="text"
+                name="sport_name"
+                value={eventData.sport_name}
+                onChange={handleChange}
+                placeholder="Sport Name"
+                className="border p-2 w-full"
+              />
+              <input
+                type="text"
+                name="event_name"
+                value={eventData.event_name}
+                onChange={handleChange}
+                placeholder="Event Name"
+                className="border p-2 w-full"
+              />
+
+              {/* Date and Time Picker */}
+              <div className="w-full">
+                <label className="block mb-1 font-medium">
+                  Event Date & Time
+                </label>
+                <DatePicker
+                  selected={eventData.event_time}
+                  onChange={(date) =>
+                    setEventData((prev) => ({ ...prev, event_time: date }))
+                  }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  className="border p-2 w-full"
+                />
+              </div>
+
+              <input
+                type="text"
+                name="hlsLink"
+                value={eventData.hlsLink}
+                onChange={handleChange}
+                placeholder="HLS Link"
+                className="border p-2 w-full"
+              />
+              <input
+                type="text"
+                name="posters"
+                value={eventData.posters}
+                onChange={handleChange}
+                placeholder="Poster Image URL"
+                className="border p-2 w-full"
+              />
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
                 >
-                  <Label htmlFor={field} className="capitalize">
-                    {field}
-                  </Label>
-                  <Input
-                    id={field}
-                    className="col-span-3"
-                    value={newEvent[field]}
-                    onChange={(e) =>
-                      setNewEvent({ ...newEvent, [field]: e.target.value })
-                    }
-                  />
-                </div>
-              ))}
-              <Button onClick={handleAddEvent}>Submit</Button>
-            </div>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Add Event
+                </button>
+              </div>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -150,7 +225,7 @@ const Event = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View Link
+                          <ExternalLink />
                         </a>
                       ) : (
                         "No Link"

@@ -3,14 +3,12 @@ import { useState } from "react";
 
 import {
   LayoutDashboard,
-
   ChevronDown,
   ChevronRight,
-
   X,
-  Building2,
   LogOut,
 } from "lucide-react";
+import { CiStreamOn } from "react-icons/ci";
 import { Button } from "../../componentscomponents/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import clsx from "clsx";
@@ -135,11 +133,13 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-4 border-b border-blue-200">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-[#18358e] rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
+              <CiStreamOn className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-blue-200">REXVETS</h2>
-              <p className="text-xs text-blue-500">Petcare Dashboard</p>
+              <h2 className="text-lg font-semibold text-blue-200">
+                Streaming Dashboard
+              </h2>
+              <p className="text-xs text-blue-500">Sports Dashboard</p>
             </div>
           </div>
           <Button
