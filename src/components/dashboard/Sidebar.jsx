@@ -3,10 +3,8 @@ import { useState } from "react";
 
 import {
   LayoutDashboard,
-
   ChevronDown,
   ChevronRight,
-
   X,
   Building2,
   LogOut,
@@ -14,12 +12,14 @@ import {
 import { Button } from "../../componentscomponents/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import clsx from "clsx";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../componentscomponents/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../componentscomponents/ui/collapsible";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { MdEventAvailable } from "react-icons/md";
 import { GiVerticalBanner } from "react-icons/gi";
-
-
 
 const Sidebar = ({ isOpen, onClose }) => {
   const pathname = useLocation();
@@ -86,9 +86,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-1">
-            {item.children.map((child) =>
-              renderMenuItem(child, level + 1)
-            )}
+            {item.children.map((child) => renderMenuItem(child, level + 1))}
           </CollapsibleContent>
         </Collapsible>
       );
@@ -138,8 +136,10 @@ const Sidebar = ({ isOpen, onClose }) => {
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-blue-200">REXVETS</h2>
-              <p className="text-xs text-blue-500">Petcare Dashboard</p>
+              <h2 className="text-lg font-semibold text-blue-200">
+                Streaming Site
+              </h2>
+              {/* <p className="text-xs text-blue-500">Petcare Dashboard</p> */}
             </div>
           </div>
           <Button
@@ -169,7 +169,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             Sign Out
           </button>
           <p className="text-xs text-blue-100 text-center mt-3">
-            © {new Date().getFullYear()} RexVets. All rights reserved.
+            © {new Date().getFullYear()} Streaming. All rights reserved.
           </p>
         </div>
       </div>

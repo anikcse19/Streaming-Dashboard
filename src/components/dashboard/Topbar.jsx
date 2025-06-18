@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import {
-Search,
+  Search,
   Menu,
   Settings,
   User,
@@ -12,43 +12,47 @@ Search,
 } from "lucide-react";
 import { Button } from "../../componentscomponents/ui/button";
 import { Input } from "../../componentscomponents/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../componentscomponents/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../../componentscomponents/ui/dropdown-menu";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "../../componentscomponents/ui/avatar";
 
-
-
-
 const Topbar = ({ onMenuClick }) => {
-//   const [notifications] = useState([
-//     {
-//       id: 1,
-//       title: "New appointment scheduled",
-//       message: "Dr. Smith has a new appointment at 3:00 PM",
-//       time: "5 min ago",
-//       type: "appointment",
-//       unread: true,
-//     },
-//     {
-//       id: 2,
-//       title: "Patient review received",
-//       message: "Sarah Johnson left a 5-star review",
-//       time: "15 min ago",
-//       type: "review",
-//       unread: true,
-//     },
-//     {
-//       id: 3,
-//       title: "Emergency case",
-//       message: "Priority patient in waiting room",
-//       time: "30 min ago",
-//       type: "emergency",
-//       unread: false,
-//     },
-//   ]);
+  //   const [notifications] = useState([
+  //     {
+  //       id: 1,
+  //       title: "New appointment scheduled",
+  //       message: "Dr. Smith has a new appointment at 3:00 PM",
+  //       time: "5 min ago",
+  //       type: "appointment",
+  //       unread: true,
+  //     },
+  //     {
+  //       id: 2,
+  //       title: "Patient review received",
+  //       message: "Sarah Johnson left a 5-star review",
+  //       time: "15 min ago",
+  //       type: "review",
+  //       unread: true,
+  //     },
+  //     {
+  //       id: 3,
+  //       title: "Emergency case",
+  //       message: "Priority patient in waiting room",
+  //       time: "30 min ago",
+  //       type: "emergency",
+  //       unread: false,
+  //     },
+  //   ]);
   const { theme, setTheme } = useState("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -56,11 +60,11 @@ const Topbar = ({ onMenuClick }) => {
     setMounted(true);
   }, []);
 
-//   const unreadCount = notifications.filter((n) => n.unread).length;
+  //   const unreadCount = notifications.filter((n) => n.unread).length;
 
-//   const handleLogout = () => {
-//     signOut({ callbackUrl: "/" });
-//   };
+  //   const handleLogout = () => {
+  //     signOut({ callbackUrl: "/" });
+  //   };
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 dark:bg-slate-800 dark:border-blue-900 transition-colors">
       <div className="flex items-center justify-between">
@@ -78,7 +82,7 @@ const Topbar = ({ onMenuClick }) => {
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-blue-200 h-4 w-4" />
             <Input
-              placeholder="Search patients, doctors, appointments..."
+              placeholder=""
               className="pl-10 w-80 bg-gray-50 border-gray-200 focus:bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-blue-100"
             />
           </div>
@@ -149,9 +153,10 @@ const Topbar = ({ onMenuClick }) => {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
-            //   onClick={handleLogout} 
-              className="text-red-600">
+              <DropdownMenuItem
+                //   onClick={handleLogout}
+                className="text-red-600"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
