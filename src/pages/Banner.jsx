@@ -1,3 +1,4 @@
+// banner.jsx
 import { useState } from "react";
 import {
   Card,
@@ -24,45 +25,44 @@ import {
   DialogTrigger,
 } from "../componentscomponents/ui/dialog";
 import "react-datepicker/dist/react-datepicker.css";
+import { useBannersApi } from "../services/useBannerApi";
 
-const mockEvents = [
-  {
-    _id: "68513e2cc5a50c67288e372c",
-    posters: "https://filedn.com/ll5zNusm7Pak5IjUJ9hlXGm/live-cricket.png",
-  },
-];
+// const mockEvents = [
+//   {
+//     _id: "68513e2cc5a50c67288e372c",
+//     posters: "https://filedn.com/ll5zNusm7Pak5IjUJ9hlXGm/live-cricket.png",
+//   },
+// ];
 
 const Banner = () => {
-      const [events, setEvents] = useState(mockEvents);
+      const { banners, addBanner, deleteBanner } =
+       useBannersApi();
+       console.log(banners);
       const [open, setOpen] = useState(false); // control Dialog
       const initialFormState = {
         posters: "",
       };
-      const [eventData, setEventData] = useState(initialFormState);
-      const handleDelete = (id) => {
-        setEvents(events.filter((event) => event._id !== id));
-      };
+      const [bannerData, setBannerData] = useState(initialFormState);
+  
     
       const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setEventData((prev) => ({
+        setBannerData((prev) => ({
           ...prev,
           [name]: type === "checkbox" ? checked : value,
         }));
       };
     
-      const handleSubmit = (e) => {
+      const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Event Submitted:", eventData);
-    
-    
-        // Clear form and close modal
-        setEventData(initialFormState);
+        console.log("event data", bannerData);
+        await addBanner(bannerData);
+        setBannerData(initialFormState);
         setOpen(false);
       };
-    
+
       const handleClose = () => {
-        setEventData(initialFormState);
+       setBannerData(initialFormState);
         setOpen(false);
       };
   return (
@@ -83,7 +83,7 @@ const Banner = () => {
               <input
                 type="text"
                 name="posters"
-                value={eventData.posters}
+                value={bannerData.posters}
                 onChange={handleChange}
                 placeholder="Poster Image URL"
                 className="border p-2 w-full"
@@ -111,26 +111,25 @@ const Banner = () => {
 
       <Card className="dark:bg-[#293549]">
         <CardHeader>
-          <CardTitle>Event List</CardTitle>
-          <CardDescription>Showing {events.length} event(s)</CardDescription>
+          <CardTitle>Banner List</CardTitle>
+          <CardDescription>Showing {banners.length} banner(s)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border overflow-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-
                   <TableHead>Poster</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {events.map((event) => (
-                  <TableRow key={event._id}>
+                {banners.map((banner) => (
+                  <TableRow key={banner._id}>
                     <TableCell>
                       <img
-                        src={event.posters}
-                        alt={event.event_name}
+                        src={banner.posters}
+                        alt={banner.event_name}
                         className="w-16 h-10 object-cover"
                       />
                     </TableCell>
@@ -138,7 +137,7 @@ const Banner = () => {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDelete(event._id)}
+                        onClick={() => deleteBanner(banner._id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

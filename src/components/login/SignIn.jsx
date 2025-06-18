@@ -12,6 +12,7 @@ const SignIn = () => {
   } = useForm();
 
   const onSubmit =async (data) => {
+    console.log(data)
     try {
       const response = await fetch(
         "https://testapi.epickstream.online/api/auth/login",
@@ -27,17 +28,15 @@ const SignIn = () => {
           }),
         }
       );
-      const token = response.data.token;
+      const result =await response.json();
+      const token = result.token;
+      Cookies.set("stream-token", token, { expires: 2 });
+      navigator("/dashboard");
 
-      // Store token in cookie (expires in 7 days)
-      Cookies.set("token", token, { expires: 7 });
-      // const result = await response.json();
-      // console.log("Here is the response= ", result);
     } catch (error) {
       console.log("error occur", error);
     }
-    console.log(data);
-    navigator('/dashboard')
+
 
   };
 

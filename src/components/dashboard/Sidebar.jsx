@@ -16,13 +16,18 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../compo
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { MdEventAvailable } from "react-icons/md";
 import { GiVerticalBanner } from "react-icons/gi";
-
-
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const pathname = useLocation();
   const [expandedItems, setExpandedItems] = useState(["doctors"]);
-
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    Cookies.remove("stream-token");
+    console.log("token remove");
+    navigate("/");
+  };
   const toggleExpanded = (item) => {
     setExpandedItems((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
@@ -48,7 +53,10 @@ const Sidebar = ({ isOpen, onClose }) => {
   ];
 
   const renderMenuItem = (item, level = 0) => {
-    const isActive = pathname === item.href;
+    const isActive = pathname.pathname === item.href;
+    console.log("pathname", pathname);
+    console.log("item.href", item.href);
+    console.log("isActive",isActive)
     const isExpanded = expandedItems.includes(item.title.toLowerCase());
     const hasChildren = item.children && item.children.length > 0;
     const Icon = item.icon;
@@ -84,9 +92,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-1">
-            {item.children.map((child) =>
-              renderMenuItem(child, level + 1)
-            )}
+            {item.children.map((child) => renderMenuItem(child, level + 1))}
           </CollapsibleContent>
         </Collapsible>
       );
@@ -162,7 +168,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Footer */}
         <div className="p-4 border-t border-blue-200 bg-blue-900/80 dark:bg-slate-800">
           <button
-            // onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-blue-700  hover:bg-blue-800 text-white font-semibold transition-colors"
           >
             <LogOut className="w-4 h-4" />
