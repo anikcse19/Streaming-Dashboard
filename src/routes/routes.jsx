@@ -3,6 +3,7 @@ import App from "../App";
 import Dashboard from "../pages/Dashboard";
 import Banner from "../pages/Banner";
 import Event from "../pages/Event";
+import PrivateRoute from "./PrivateRoute";
 
 
 const router = createBrowserRouter([
@@ -12,7 +13,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard></Dashboard>,
+    element: (
+      <PrivateRoute>
+        <Dashboard></Dashboard>
+      </PrivateRoute>
+    ),
     children: [
       // {
       //   path: "/",
@@ -20,7 +25,7 @@ const router = createBrowserRouter([
       // },
       {
         path: "banner",
-        element:<Banner></Banner>,
+        element: <Banner></Banner>,
       },
       {
         path: "event",

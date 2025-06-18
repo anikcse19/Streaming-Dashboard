@@ -3,6 +3,7 @@ import { useState } from "react";
 import Sidebar from "../components/dashboard/Sidebar";
 import { Outlet } from "react-router-dom";
 import Topbar from "../components/dashboard/Topbar";
+import { Toaster } from "react-hot-toast";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -42,6 +43,7 @@ const Dashboard = () => {
         {/* Main content */}
         <main className="flex-1 p-6 overflow-auto bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <Outlet></Outlet>
+          <Toaster position="bottom-right" reverseOrder={false} />
         </main>
       </div>
     </div>

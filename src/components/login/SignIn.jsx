@@ -1,4 +1,5 @@
 // import axios from "axios";
+import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +12,7 @@ const SignIn = () => {
   } = useForm();
 
   const onSubmit =async (data) => {
+    console.log(data)
     try {
       const response = await fetch(
         "https://testapi.epickstream.online/api/auth/login",
@@ -26,14 +28,15 @@ const SignIn = () => {
           }),
         }
       );
+      const result =await response.json();
+      const token = result.token;
+      Cookies.set("stream-token", token, { expires: 2 });
+      navigator("/dashboard");
 
-      const result = await response.json();
-      console.log("Here is the response= ", result);
     } catch (error) {
       console.log("error occur", error);
     }
-    console.log(data);
-    navigator('/dashboard')
+
 
   };
 

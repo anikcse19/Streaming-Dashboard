@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -15,7 +16,7 @@ import {
   TableRow,
 } from "../componentscomponents/ui/table";
 import { Button } from "../componentscomponents/ui/button";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,91 +24,202 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../componentscomponents/ui/dialog";
-import { Input } from "../componentscomponents/ui/input";
-import { Label } from "../componentscomponents/ui/label";
-
-const mockEvents = [
-  {
-    _id: "68513e2cc5a50c67288e372c",
-    platform: "app",
-    isPopular: "0",
-    sport_name: "Live sports_2025",
-    event_id: "010101",
-    event_name: "Live Sports 2025",
-    event_time: "2025-06-22T12:21:00.000Z",
-    hlsLink:
-      "https://st3.1ten.live/memfs/5f70b812-e7af-4004-ab0c-75c00b7654d0.m3u8",
-    posters: "https://filedn.com/ll5zNusm7Pak5IjUJ9hlXGm/live-cricket.png",
-  },
-];
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useEventsApi } from "../services/useEventsApi";
+import { FaRegTrashCan } from "react-icons/fa6";
+// 🔁 Replace with your real base URL
 
 const Event = () => {
-  const [events, setEvents] = useState(mockEvents);
-  const [newEvent, setNewEvent] = useState({
+  const { events, deleteEvent, addEvent, deleteAllEvents } = useEventsApi();
+  const [open, setOpen] = useState(false);
+  console.log(events);
+  const initialFormState = {
     platform: "",
-    isPopular: "",
+    isPopular: false,
     sport_name: "",
     event_name: "",
-    event_time: "",
+    event_time: new Date(),
     hlsLink: "",
     posters: "",
-  });
+  };
+  const [eventData, setEventData] = useState(initialFormState);
 
-  const handleDelete = (id) => {
-    setEvents(events.filter((event) => event._id !== id));
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEventData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+  console.log(eventData.event_time);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("event data", eventData);
+
+    await addEvent(eventData);
+    setEventData(initialFormState);
+    setOpen(false);
   };
 
-  const handleAddEvent = () => {
-    const newId = Math.random().toString(36).substring(2);
-    setEvents([...events, { _id: newId, ...newEvent }]);
-    setNewEvent({
-      platform: "",
-      isPopular: "",
-      sport_name: "",
-      event_name: "",
-      event_time: "",
-      hlsLink: "",
-      posters: "",
-    });
+  const handleClose = () => {
+    setEventData(initialFormState);
+    setOpen(false);
   };
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-[#0B1D51]">Events</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Event
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add New Event</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {Object.keys(newEvent).map((field) => (
-                <div
-                  className="grid grid-cols-4 items-center gap-4"
-                  key={field}
-                >
-                  <Label htmlFor={field} className="capitalize">
-                    {field}
-                  </Label>
-                  <Input
-                    id={field}
-                    className="col-span-3"
-                    value={newEvent[field]}
-                    onChange={(e) =>
-                      setNewEvent({ ...newEvent, [field]: e.target.value })
-                    }
-                  />
+        <div className=" flex items-center gap-6">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Add New Event</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 p-4">
+                <div className=" w-full flex items-center gap-6">
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">Event Id</label>
+                    <input
+                      type="text"
+                      name="event_id"
+                      value={eventData.event_id}
+                      onChange={handleChange}
+                      placeholder="Event Id"
+                      className="border p-2 w-full"
+                    />
+                  </div>
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">Event Name</label>
+                    <input
+                      type="text"
+                      name="event_name"
+                      value={eventData.event_name}
+                      onChange={handleChange}
+                      placeholder="Event Name"
+                      className="border p-2 w-full"
+                    />
+                  </div>
                 </div>
-              ))}
-              <Button onClick={handleAddEvent}>Submit</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+                <div className=" w-full flex items-center gap-6">
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">
+                      Platform Name
+                    </label>
+                    <input
+                      type="text"
+                      name="platform"
+                      value={eventData.platform}
+                      onChange={handleChange}
+                      placeholder="Platform"
+                      className="border p-2 w-full"
+                    />
+                  </div>
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">Sport Name</label>
+                    <input
+                      type="text"
+                      name="sport_name"
+                      value={eventData.sport_name}
+                      onChange={handleChange}
+                      placeholder="Sport Name"
+                      className="border p-2 w-full"
+                    />
+                  </div>
+                </div>
+                {/* link */}
+                <div className=" w-full flex items-center gap-6">
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">Hls Link</label>
+                    <input
+                      type="text"
+                      name="hlsLink"
+                      value={eventData.hlsLink}
+                      onChange={handleChange}
+                      placeholder="HLS Link"
+                      className="border p-2 w-full"
+                    />
+                  </div>
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">
+                      Poster Link
+                    </label>
+                    <input
+                      type="text"
+                      name="posters"
+                      value={eventData.posters}
+                      onChange={handleChange}
+                      placeholder="Poster Image URL"
+                      className="border p-2 w-full"
+                    />
+                  </div>
+                </div>
+                <div className=" w-full flex items-center gap-6">
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">
+                      Event Date & Time
+                    </label>
+                    <DatePicker
+                      selected={eventData.event_time}
+                      onChange={(date) =>
+                        setEventData((prev) => ({ ...prev, event_time: date }))
+                      }
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={30}
+                      dateFormat="MMMM d, yyyy h:mm aa"
+                      className="border p-2 px-8 w-full"
+                    />
+                  </div>
+                  <div className=" w-1/2">
+                    <label className="block mb-1 font-medium">Popular?</label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        name="isPopular"
+                        checked={eventData.isPopular}
+                        onChange={handleChange}
+                      />
+                      <span>Yes</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="w-full"></div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="bg-gray-300 text-black px-4 py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                  >
+                    Add Event
+                  </button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => deleteAllEvents()}
+          >
+            <FaRegTrashCan />
+            Delete all
+          </Button>
+        </div>
       </div>
 
       <Card className="dark:bg-[#293549]">
@@ -150,7 +262,7 @@ const Event = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View Link
+                          <ExternalLink />
                         </a>
                       ) : (
                         "No Link"
@@ -167,7 +279,7 @@ const Event = () => {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDelete(event._id)}
+                        onClick={() => deleteEvent(event._id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -184,3 +296,15 @@ const Event = () => {
 };
 
 export default Event;
+{
+  /* <input
+                  type="date"
+                  name="event_time"
+                  value={eventData.event_time}
+                  onChange={(date) =>
+                    setEventData((prev) => ({ ...prev, event_time: format(date,"yyyy/mm/dd") }))
+                  }
+                  placeholder="Event Time"
+                  className="border p-2 w-full"
+                /> */
+}
