@@ -33,6 +33,7 @@ import { FaRegTrashCan } from "react-icons/fa6";
 const Event = () => {
   const { events, deleteEvent, addEvent, deleteAllEvents } = useEventsApi();
   const [open, setOpen] = useState(false);
+  const [anotherSport, setAnotherSport] = useState(false);
   console.log(events);
   const initialFormState = {
     platform: "",
@@ -47,10 +48,16 @@ const Event = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setEventData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    console.log(name, value, type, checked);
+    if (name === "sport_name" && value === "others") {
+      console.log("hii");
+      setAnotherSport(true);
+    } else {
+      setEventData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
   console.log(eventData.event_time);
   const handleSubmit = async (e) => {
@@ -84,7 +91,7 @@ const Event = () => {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 p-4">
                 <div className=" w-full flex items-center gap-6">
-                  <div className=" w-1/2">
+                  <div className=" w-1/2 relative">
                     <label className="block mb-1 font-medium">Event Id</label>
                     <input
                       type="text"
@@ -92,8 +99,23 @@ const Event = () => {
                       value={eventData.event_id}
                       onChange={handleChange}
                       placeholder="Event Id"
-                      className="border p-2 w-full"
+                      className="border p-2 w-full pr-20"
+                      maxLength={10}
                     />
+                    <button
+                      type="button"
+                      className="absolute right-0 top-7 bg-blue-600 text-white px-1 py-1 rounded text-xs"
+                      onClick={() => {
+                        // Generate a random alphanumeric ID up to 10 chars
+                        const newId = Math.random()
+                          .toString(36)
+                          .substr(2, 10)
+                          .toUpperCase();
+                        setEventData((prev) => ({ ...prev, event_id: newId }));
+                      }}
+                    >
+                      Generate
+                    </button>
                   </div>
                   <div className=" w-1/2">
                     <label className="block mb-1 font-medium">Event Name</label>
@@ -121,17 +143,46 @@ const Event = () => {
                       className="border p-2 w-full"
                     />
                   </div>
-                  <div className=" w-1/2">
-                    <label className="block mb-1 font-medium">Sport Name</label>
-                    <input
-                      type="text"
-                      name="sport_name"
-                      value={eventData.sport_name}
-                      onChange={handleChange}
-                      placeholder="Sport Name"
-                      className="border p-2 w-full"
-                    />
-                  </div>
+                  {!anotherSport && (
+                    <div className=" w-1/2">
+                      <label className="block mb-1 font-medium">
+                        Sport Name
+                      </label>
+                      <select
+                        onChange={handleChange}
+                        value={eventData?.sport_name}
+                        className="border p-2 w-full"
+                        name="sport_name"
+                        id=""
+                      >
+                        <option value="">Select Event</option>
+                        <option value="all_popular_tv">All Popular Tv</option>
+                        <option value="all_cricket_match">
+                          All Cricket Match
+                        </option>
+                        <option value="all_soccer_match">
+                          All Soccer Match
+                        </option>
+                        <option value="others">Others</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {anotherSport && (
+                    <div className=" w-1/2">
+                      <label className="block mb-1 font-medium">
+                        Sport Name
+                      </label>
+                      <input
+                        type="text"
+                        name="sport_name"
+                        // value={eventData.sport_name}
+                        onChange={handleChange}
+                        placeholder="Sport Name"
+                        className="border p-2 w-full"
+                      />
+                    </div>
+                  )}
                 </div>
                 {/* link */}
                 <div className=" w-full flex items-center gap-6">
