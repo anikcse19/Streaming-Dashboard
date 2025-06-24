@@ -67,11 +67,13 @@ const Event = () => {
     await addEvent(eventData);
     setEventData(initialFormState);
     setOpen(false);
+    setAnotherSport(false);
   };
 
   const handleClose = () => {
     setEventData(initialFormState);
     setOpen(false);
+    setAnotherSport(false);
   };
 
   return (
