@@ -2,6 +2,7 @@
 import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { baseURL } from "../../../config";
 
 const SignIn = () => {
   const navigator=useNavigate()
@@ -15,7 +16,7 @@ const SignIn = () => {
     console.log(data)
     try {
       const response = await fetch(
-        "https://testapi.epickstream.online/api/auth/login",
+        `${baseURL}/api/auth/login`,
         {
           method: "POST",
           headers: {
