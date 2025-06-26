@@ -28,10 +28,19 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useEventsApi } from "../services/useEventsApi";
 import { FaRegTrashCan } from "react-icons/fa6";
+import Pagination from "../components/dashboard/Pagination";
+
 // 🔁 Replace with your real base URL
 
 const Event = () => {
-  const { events, deleteEvent, addEvent, deleteAllEvents } = useEventsApi();
+  const {
+    events,
+    deleteEvent,
+    addEvent,
+    deleteAllEvents,
+    currentPage,
+    setCurrentPage,
+  } = useEventsApi();
   const [open, setOpen] = useState(false);
   const [anotherSport, setAnotherSport] = useState(false);
   console.log(events);
@@ -59,7 +68,7 @@ const Event = () => {
       }));
     }
   };
-  console.log(eventData.event_time);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("event data", eventData);
@@ -70,6 +79,7 @@ const Event = () => {
     setAnotherSport(false);
   };
 
+  console.log("events", events);
   const handleClose = () => {
     setEventData(initialFormState);
     setOpen(false);
@@ -136,14 +146,17 @@ const Event = () => {
                     <label className="block mb-1 font-medium">
                       Platform Name
                     </label>
-                    <input
-                      type="text"
-                      name="platform"
-                      value={eventData.platform}
+                    <select
                       onChange={handleChange}
-                      placeholder="Platform"
+                      value={eventData?.platform}
                       className="border p-2 w-full"
-                    />
+                      name="platform"
+                      id=""
+                    >
+                      <option value="">Select Platform</option>
+                      <option value="app">App</option>
+                      <option value="web">Web</option>
+                    </select>
                   </div>
                   {!anotherSport && (
                     <div className=" w-1/2">
@@ -296,7 +309,7 @@ const Event = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {events.map((event) => (
+                {events?.allEvents?.map((event) => (
                   <TableRow key={event._id}>
                     <TableCell>{event.platform}</TableCell>
                     <TableCell>
@@ -344,20 +357,14 @@ const Event = () => {
           </div>
         </CardContent>
       </Card>
+      <Pagination
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        total={events?.total}
+        limit={events?.limit}
+      />
     </div>
   );
 };
 
 export default Event;
-{
-  /* <input
-                  type="date"
-                  name="event_time"
-                  value={eventData.event_time}
-                  onChange={(date) =>
-                    setEventData((prev) => ({ ...prev, event_time: format(date,"yyyy/mm/dd") }))
-                  }
-                  placeholder="Event Time"
-                  className="border p-2 w-full"
-                /> */
-}

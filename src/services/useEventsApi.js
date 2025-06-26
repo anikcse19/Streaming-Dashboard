@@ -4,25 +4,28 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { baseURL } from "../../config";
 
-
 export const useEventsApi = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const token = Cookies.get("stream-token");
+
   const getEvents = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${baseURL}/api/admin/events/event`, {
-        headers: {
-        //   "x-api-key": "665544332211",
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization:`Bearer ${token}`
-        },
-      });
-      setEvents(res?.data?.data?.allEvents || []);
-      console.log("useApi",events)
-     
+      const res = await axios.get(
+        `${baseURL}/api/admin/events/event?page=${currentPage}`,
+        {
+          headers: {
+            //   "x-api-key": "665544332211",
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setEvents(res?.data?.data || []);
+      console.log("useApi", events);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch events");
     } finally {
@@ -31,8 +34,6 @@ export const useEventsApi = () => {
   };
 
   const addEvent = async (eventData) => {
-
-
     if (!token) {
       toast.error("Unauthorized. Please login.");
       return;
@@ -55,7 +56,7 @@ export const useEventsApi = () => {
           },
         }
       );
-console.log(res)
+      console.log(res);
       toast.success(res.data?.message || "Event added successfully");
       getEvents(); // Refresh event list
     } catch (error) {
@@ -67,7 +68,7 @@ console.log(res)
       toast.error("Unauthorized. Please login.");
       return;
     }
-console.log("Api delete")
+    console.log("Api delete");
     try {
       await axios.delete(`${baseURL}/api/admin/events/event`, {
         headers: {
@@ -75,7 +76,7 @@ console.log("Api delete")
         },
       });
       toast.success("All events deleted successfully");
-      setEvents([]); 
+      setEvents([]);
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to delete all events"
@@ -96,7 +97,7 @@ console.log("Api delete")
         },
       });
       toast.success("Event deleted successfully");
-      setEvents((prev) => prev.filter((e) => e._id !== eventId));
+      getEvents();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to delete event");
     }
@@ -105,5 +106,14 @@ console.log("Api delete")
     getEvents();
   }, []);
 
-  return { events, loading, getEvents, addEvent, deleteEvent, deleteAllEvents };
+  return {
+    events,
+    loading,
+    getEvents,
+    addEvent,
+    deleteEvent,
+    deleteAllEvents,
+    currentPage,
+    setCurrentPage,
+  };
 };
