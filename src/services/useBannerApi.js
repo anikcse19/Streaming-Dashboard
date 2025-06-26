@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-const baseURL = "https://testapi.epickstream.online";
+import { baseURL } from "../../config";
+
 
 export const useBannersApi = () => {
   const [banners, setBanners] = useState([]);
