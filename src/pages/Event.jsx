@@ -1,5 +1,5 @@
+"use client";
 import { useState } from "react";
-
 import {
   Card,
   CardContent,
@@ -30,8 +30,6 @@ import { useEventsApi } from "../services/useEventsApi";
 import { FaRegTrashCan } from "react-icons/fa6";
 import Pagination from "../components/dashboard/Pagination";
 
-// 🔁 Replace with your real base URL
-
 const Event = () => {
   const {
     events,
@@ -41,69 +39,115 @@ const Event = () => {
     currentPage,
     setCurrentPage,
   } = useEventsApi();
+
   const [open, setOpen] = useState(false);
   const [anotherSport, setAnotherSport] = useState(false);
-  console.log(events);
+
   const initialFormState = {
-    platform: "",
     isPopular: false,
-    sport_name: "",
     event_name: "",
     event_time: new Date(),
     hlsLink: "",
     posters: "",
+    event_id: "",
+    platform: "",
+    sport_name: "",
   };
+
   const [eventData, setEventData] = useState(initialFormState);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    console.log(name, value, type, checked);
-    if (name === "sport_name" && value === "others") {
-      console.log("hii");
-      setAnotherSport(true);
-    } else {
-      setEventData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
+
+    if (name === "sport_name") {
+      // From dropdown
+      if (value === "others") {
+        setAnotherSport(true);
+        setEventData((prev) => ({
+          ...prev,
+          sport_name: "", // allow custom input
+        }));
+      } else {
+        setAnotherSport(false); // only if selecting from dropdown
+        setEventData((prev) => ({
+          ...prev,
+          sport_name: value,
+        }));
+      }
+      return;
     }
+
+    setEventData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("event data", eventData);
 
     await addEvent(eventData);
-    setEventData(initialFormState);
-    setOpen(false);
-    setAnotherSport(false);
+
+    // Reset all except platform, sport_name, and event_time
+    setEventData((prev) => ({
+      ...initialFormState,
+      platform: prev.platform,
+      sport_name: prev.sport_name,
+      event_time: prev.event_time,
+      event_id: generateRandomId(),
+    }));
+
+    setAnotherSport(eventData.sport_name === "others");
   };
 
-  console.log("events", events);
   const handleClose = () => {
-    setEventData(initialFormState);
+    // Reset all except platform, sport_name, and event_time
+    setEventData((prev) => ({
+      ...initialFormState,
+      platform: prev.platform,
+      sport_name: prev.sport_name,
+      event_time: prev.event_time,
+    }));
+
     setOpen(false);
-    setAnotherSport(false);
+    setAnotherSport(eventData.sport_name === "others");
   };
+
+  const generateRandomId = () =>
+    Math.random().toString(36).substr(2, 10).toUpperCase();
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-[#0B1D51]">Events</h2>
-        <div className=" flex items-center gap-6">
-          <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex items-center gap-6">
+          <Dialog
+            open={open}
+            onOpenChange={(isOpen) => {
+              setOpen(isOpen);
+              if (isOpen) {
+                // Generate ID when modal opens
+                setEventData((prev) => ({
+                  ...prev,
+                  event_id: generateRandomId(),
+                }));
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button variant="outline">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Event
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="md:max-w-[1200px]">
               <DialogHeader>
                 <DialogTitle>Add New Event</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 p-4">
-                <div className=" w-full flex items-center gap-6">
-                  <div className=" w-1/2 relative">
+                <div className="w-full flex items-center gap-6">
+                  <div className="w-1/2 relative">
                     <label className="block mb-1 font-medium">Event Id</label>
                     <input
                       type="text"
@@ -117,19 +161,17 @@ const Event = () => {
                     <button
                       type="button"
                       className="absolute right-0 top-7 bg-blue-600 text-white px-1 py-1 rounded text-xs"
-                      onClick={() => {
-                        // Generate a random alphanumeric ID up to 10 chars
-                        const newId = Math.random()
-                          .toString(36)
-                          .substr(2, 10)
-                          .toUpperCase();
-                        setEventData((prev) => ({ ...prev, event_id: newId }));
-                      }}
+                      onClick={() =>
+                        setEventData((prev) => ({
+                          ...prev,
+                          event_id: generateRandomId(),
+                        }))
+                      }
                     >
                       Generate
                     </button>
                   </div>
-                  <div className=" w-1/2">
+                  <div className="w-1/2">
                     <label className="block mb-1 font-medium">Event Name</label>
                     <input
                       type="text"
@@ -141,34 +183,47 @@ const Event = () => {
                     />
                   </div>
                 </div>
-                <div className=" w-full flex items-center gap-6">
-                  <div className=" w-1/2">
+
+                <div className="w-full flex items-center gap-6">
+                  <div className="w-1/2">
                     <label className="block mb-1 font-medium">
                       Platform Name
                     </label>
                     <select
                       onChange={handleChange}
-                      value={eventData?.platform}
+                      value={eventData.platform}
                       className="border p-2 w-full"
                       name="platform"
-                      id=""
                     >
                       <option value="">Select Platform</option>
                       <option value="app">App</option>
                       <option value="web">Web</option>
                     </select>
                   </div>
-                  {!anotherSport && (
-                    <div className=" w-1/2">
-                      <label className="block mb-1 font-medium">
-                        Sport Name
-                      </label>
-                      <select
-                        onChange={handleChange}
-                        value={eventData?.sport_name}
-                        className="border p-2 w-full"
+
+                  <div className="w-1/2">
+                    <label className="block mb-1 font-medium">Sport Name</label>
+
+                    {anotherSport ? (
+                      <input
+                        type="text"
                         name="sport_name"
-                        id=""
+                        value={eventData.sport_name}
+                        onChange={(e) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            sport_name: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter custom sport name"
+                        className="border p-2 w-full"
+                      />
+                    ) : (
+                      <select
+                        name="sport_name"
+                        value={eventData.sport_name}
+                        onChange={handleChange}
+                        className="border p-2 w-full"
                       >
                         <option value="">Select Event</option>
                         <option value="all_popular_tv">All Popular Tv</option>
@@ -180,29 +235,13 @@ const Event = () => {
                         </option>
                         <option value="others">Others</option>
                       </select>
-                    </div>
-                  )}
-
-                  {anotherSport && (
-                    <div className=" w-1/2">
-                      <label className="block mb-1 font-medium">
-                        Sport Name
-                      </label>
-                      <input
-                        type="text"
-                        name="sport_name"
-                        // value={eventData.sport_name}
-                        onChange={handleChange}
-                        placeholder="Sport Name"
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-                {/* link */}
-                <div className=" w-full flex items-center gap-6">
-                  <div className=" w-1/2">
-                    <label className="block mb-1 font-medium">Hls Link</label>
+
+                <div className="w-full flex items-center gap-6">
+                  <div className="w-1/2">
+                    <label className="block mb-1 font-medium">HLS Link</label>
                     <input
                       type="text"
                       name="hlsLink"
@@ -212,7 +251,7 @@ const Event = () => {
                       className="border p-2 w-full"
                     />
                   </div>
-                  <div className=" w-1/2">
+                  <div className="w-1/2">
                     <label className="block mb-1 font-medium">
                       Poster Link
                     </label>
@@ -226,8 +265,9 @@ const Event = () => {
                     />
                   </div>
                 </div>
-                <div className=" w-full flex items-center gap-6">
-                  <div className=" w-1/2">
+
+                <div className="w-full flex items-center gap-6">
+                  <div className="w-1/2">
                     <label className="block mb-1 font-medium">
                       Event Date & Time
                     </label>
@@ -243,7 +283,7 @@ const Event = () => {
                       className="border p-2 px-8 w-full"
                     />
                   </div>
-                  <div className=" w-1/2">
+                  <div className="w-1/2">
                     <label className="block mb-1 font-medium">Popular?</label>
                     <label className="flex items-center space-x-2">
                       <input
@@ -256,8 +296,6 @@ const Event = () => {
                     </label>
                   </div>
                 </div>
-
-                <div className="w-full"></div>
 
                 <div className="flex justify-end gap-2">
                   <button
@@ -277,6 +315,7 @@ const Event = () => {
               </form>
             </DialogContent>
           </Dialog>
+
           <Button
             variant="destructive"
             size="sm"
@@ -357,6 +396,7 @@ const Event = () => {
           </div>
         </CardContent>
       </Card>
+
       <Pagination
         currentPage={currentPage}
         onPageChange={setCurrentPage}
