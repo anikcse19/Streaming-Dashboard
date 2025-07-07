@@ -277,14 +277,6 @@ const Event = () => {
               </form>
             </DialogContent>
           </Dialog>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => deleteAllEvents()}
-          >
-            <FaRegTrashCan />
-            Delete all
-          </Button>
         </div>
       </div>
 
