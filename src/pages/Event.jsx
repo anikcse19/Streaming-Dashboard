@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "../componentscomponents/ui/table";
 import { Button } from "../componentscomponents/ui/button";
-import { Trash2, PlusCircle, ExternalLink } from "lucide-react";
+import { Trash2, PlusCircle, ExternalLink, Edit } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,6 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useEventsApi } from "../services/useEventsApi";
-import { FaRegTrashCan } from "react-icons/fa6";
 import Pagination from "../components/dashboard/Pagination";
 
 const Event = () => {
@@ -35,13 +34,15 @@ const Event = () => {
     events,
     deleteEvent,
     addEvent,
-    deleteAllEvents,
+    updateEvent,
     currentPage,
     setCurrentPage,
   } = useEventsApi();
 
   const [open, setOpen] = useState(false);
   const [anotherSport, setAnotherSport] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
 
   const initialFormState = {
     isPopular: false,
@@ -86,31 +87,84 @@ const Event = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await addEvent(eventData);
+    if (isEditMode) {
+      // Update existing event
+      await updateEvent(editingEventId, eventData);
+      handleClose();
+    } else {
+      // Add new event
+      await addEvent(eventData);
 
-    // Reset all except platform, sport_name, and event_time
-    setEventData((prev) => ({
-      ...initialFormState,
-      platform: prev.platform,
-      sport_name: prev.sport_name,
-      event_time: prev.event_time,
-      event_id: generateRandomId(),
-    }));
+      // Reset all except platform, sport_name, and event_time
+      setEventData((prev) => ({
+        ...initialFormState,
+        platform: prev.platform,
+        sport_name: prev.sport_name,
+        event_time: prev.event_time,
+        event_id: generateRandomId(),
+      }));
 
-    setAnotherSport(eventData.sport_name === "others");
+      setAnotherSport(eventData.sport_name === "others");
+    }
   };
 
   const handleClose = () => {
-    // Reset all except platform, sport_name, and event_time
-    setEventData((prev) => ({
-      ...initialFormState,
-      platform: prev.platform,
-      sport_name: prev.sport_name,
-      event_time: prev.event_time,
-    }));
+    if (isEditMode) {
+      // Reset everything for edit mode
+      setEventData(initialFormState);
+      setIsEditMode(false);
+      setEditingEventId(null);
+      setAnotherSport(false);
+    } else {
+      // Reset all except platform, sport_name, and event_time for add mode
+      setEventData((prev) => ({
+        ...initialFormState,
+        platform: prev.platform,
+        sport_name: prev.sport_name,
+        event_time: prev.event_time,
+      }));
+      setAnotherSport(eventData.sport_name === "others");
+    }
 
     setOpen(false);
-    setAnotherSport(eventData.sport_name === "others");
+  };
+
+  const handleEdit = (event) => {
+    setIsEditMode(true);
+    setEditingEventId(event._id);
+
+    // Pre-fill form with existing event data
+    setEventData({
+      isPopular: event.isPopular === "1" || event.isPopular === true,
+      event_name: event.event_name,
+      event_time: new Date(event.event_time),
+      hlsLink: event.hlsLink,
+      posters: event.posters,
+      event_id: event.event_id,
+      platform: event.platform,
+      sport_name: event.sport_name,
+    });
+
+    // Check if sport is custom (not in dropdown options)
+    const dropdownOptions = [
+      "all_popular_tv",
+      "all_cricket_match",
+      "all_soccer_match",
+    ];
+    setAnotherSport(!dropdownOptions.includes(event.sport_name));
+
+    setOpen(true);
+  };
+
+  const handleAdd = () => {
+    setIsEditMode(false);
+    setEditingEventId(null);
+    setEventData(() => ({
+      ...initialFormState,
+      event_id: generateRandomId(),
+    }));
+    setAnotherSport(false);
+    setOpen(true);
   };
 
   const generateRandomId = () =>
@@ -121,27 +175,17 @@ const Event = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-[#0B1D51]">Events</h2>
         <div className="flex items-center gap-6">
-          <Dialog
-            open={open}
-            onOpenChange={(isOpen) => {
-              setOpen(isOpen);
-              if (isOpen) {
-                // Generate ID when modal opens
-                setEventData((prev) => ({
-                  ...prev,
-                  event_id: generateRandomId(),
-                }));
-              }
-            }}
-          >
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleAdd}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Event
               </Button>
             </DialogTrigger>
             <DialogContent className="md:max-w-[1200px]">
               <DialogHeader>
-                <DialogTitle>Add New Event</DialogTitle>
+                <DialogTitle>
+                  {isEditMode ? "Edit Event" : "Add New Event"}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 p-4">
                 <div className="w-full flex items-center gap-6">
@@ -155,19 +199,22 @@ const Event = () => {
                       placeholder="Event Id"
                       className="border p-2 w-full pr-20"
                       maxLength={10}
+                      disabled={isEditMode} // Disable editing event ID in edit mode
                     />
-                    <button
-                      type="button"
-                      className="absolute right-0 top-7 bg-blue-600 text-white px-1 py-1 rounded text-xs"
-                      onClick={() =>
-                        setEventData((prev) => ({
-                          ...prev,
-                          event_id: generateRandomId(),
-                        }))
-                      }
-                    >
-                      Generate
-                    </button>
+                    {!isEditMode && (
+                      <button
+                        type="button"
+                        className="absolute right-0 top-7 bg-blue-600 text-white px-1 py-1 rounded text-xs"
+                        onClick={() =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            event_id: generateRandomId(),
+                          }))
+                        }
+                      >
+                        Generate
+                      </button>
+                    )}
                   </div>
                   <div className="w-1/2">
                     <label className="block mb-1 font-medium">Event Name</label>
@@ -307,7 +354,7 @@ const Event = () => {
                     type="submit"
                     className="bg-blue-600 text-white px-4 py-2 rounded"
                   >
-                    Add Event
+                    {isEditMode ? "Update Event" : "Add Event"}
                   </button>
                 </div>
               </form>
@@ -370,13 +417,22 @@ const Event = () => {
                       />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => deleteEvent(event._id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(event)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deleteEvent(event._id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

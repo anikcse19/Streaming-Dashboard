@@ -63,6 +63,35 @@ export const useEventsApi = () => {
       toast.error(error?.response?.data?.message || "Failed to add event");
     }
   };
+
+  const updateEvent = async (eventId, eventData) => {
+    if (!token) {
+      toast.error("Unauthorized. Please login.");
+      return;
+    }
+    try {
+      const payload = {
+        ...eventData,
+        isPopular: eventData.isPopular ? "1" : "0",
+        event_time: eventData.event_time.toISOString(),
+      };
+      const res = await axios.put(
+        `${baseURL}/api/admin/events/event/${eventId}/update`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(res);
+      toast.success(res.data?.message || "Event updated successfully");
+      getEvents(); // Refresh event list
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update event");
+    }
+  };
   const deleteAllEvents = async () => {
     if (!token) {
       toast.error("Unauthorized. Please login.");
@@ -111,6 +140,7 @@ export const useEventsApi = () => {
     loading,
     getEvents,
     addEvent,
+    updateEvent,
     deleteEvent,
     deleteAllEvents,
     currentPage,
